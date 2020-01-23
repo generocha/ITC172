@@ -1,5 +1,7 @@
 env01/
 PythonClub/PythonClub/settings.py
 PythonClub/PythonClub/__pycache__
+PythonClub/Club/__pycache__
 PythonClub/PythonClub/__pycache__/__init__.cpython-37.pyc
 PythonClub/PythonClub/__pycache__/settings.cpython-37.pyc
+PythonClub/Club/migrations/__pycache__/
