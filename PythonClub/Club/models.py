@@ -9,7 +9,7 @@ class Meeting(models.Model):
     agenda=models.TextField()
 
     def __str__(self):
-        return self.meetingtitle
+        return str(self.meetingtitle)
     
     class Meta:
         db_table='meeting'
@@ -21,7 +21,7 @@ class MeetingMinutes(models.Model):
     minutes=models.TextField()
 
     def __str__(self):
-        return self.meetingid
+        return str(self.meetingid)
     
     class Meta:
         db_table='meetingminute'
