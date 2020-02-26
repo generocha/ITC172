@@ -177,3 +177,24 @@ class Resource_Form_Test(TestCase):
     def test_typeform_empty(self):
         form = ResourceForm(data={'resourcetype': ""})
         self.assertFalse(form.is_valid())
+
+
+class New_Resource_authentication_test(TestCase):
+    def setUp(self):
+        self.test_user = User.objects.create_user(
+            username='testuser1', password='P@ssw0rd1')
+        self.type = Resource.objects.create(resourcetype='laptop')
+        self.res = Resource.objects.create(resourcetype=self.type, user=self.test_user,
+                                           dateentered='2019-04-02', url='http://www.dell.com', description="a product")
+
+    def test_redirect_if_not_logged_in(self):
+        response = self.client.get(reverse('newresource'))
+        self.assertRedirects(
+            response, '/accounts/login/?next=/club/newResource/')
+
+    def test_Logged_in_uses_correct_template(self):
+        login = self.client.login(username='testuser1', password='P@ssw0rd1')
+        response = self.client.get(reverse('newresource'))
+        self.assertEqual(str(response.context['user']), 'testuser1')
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'club/newresource.html')
