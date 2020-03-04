@@ -4,6 +4,8 @@ from .forms import MeetingForm, ResourceForm
 from django.urls import reverse
 from django.contrib.auth.models import User
 
+# ------------------------- Meeting Model --------------------
+
 
 class MeetingTest(TestCase):
     # set up one time sample data
@@ -39,6 +41,8 @@ class MeetingTest(TestCase):
     def test_table(self):
         self.assertEqual(str(Meeting._meta.db_table), 'meeting')
 
+# ------------------------- Meeting Mintues Model --------------------
+
 
 class MeetingMinutesTest(TestCase):
     # set up one time sample data
@@ -64,6 +68,8 @@ class MeetingMinutesTest(TestCase):
 
     def test_table(self):
         self.assertEqual(str(MeetingMinutes._meta.db_table), 'meetingminute')
+
+# ------------------------- Resource Type Model --------------------
 
 
 class ResourceTypeTest(TestCase):
@@ -97,6 +103,8 @@ class ResourceTypeTest(TestCase):
 
     def test_table(self):
         self.assertEqual(str(Resource._meta.db_table), 'resource')
+
+# ------------------------- Event Model --------------------
 
 
 class EventTest(TestCase):
@@ -134,16 +142,21 @@ class EventTest(TestCase):
 
 
 # tests for views
+# ------------------------- Index View --------------------
 class IndexTest(TestCase):
     def test_view_url_accessible_by_name(self):
         response = self.client.get(reverse('index'))
         self.assertEqual(response.status_code, 200)
+
+# ------------------------- Get Rsources View --------------------
 
 
 class GetResourcesTest(TestCase):
     def test_view_url_accessible_by_name(self):
         response = self.client.get(reverse('resources'))
         self.assertEqual(response.status_code, 200)
+
+# ------------------------- Get Meetings View --------------------
 
 
 class GetMeetingsTest(TestCase):
@@ -163,6 +176,8 @@ class GetMeetingsTest(TestCase):
 
     # Form tests
 
+# ------------------------- Resource Form--------------------
+
 
 class Resource_Form_Test(TestCase):
     def test_typeform_is_valid(self):
@@ -177,6 +192,26 @@ class Resource_Form_Test(TestCase):
     def test_typeform_empty(self):
         form = ResourceForm(data={'resourcetype': ""})
         self.assertFalse(form.is_valid())
+
+# ------------------------- Meeting Form --------------------
+
+
+class Meeting_Form_Test(TestCase):
+    def test_meetingform_is_valid(self):
+        form = MeetingForm(data={'meetingtitle': "Test Meeting", 'meetingdate': "2020-03-04",
+                                 'meetingtime': "18:00:00", 'location': "Amazon", 'agenda': "This is a test agenda"})
+        self.assertTrue(form.is_valid())
+
+    def test_meetingform_minus_agenda(self):
+        form = MeetingForm(data={'meetingtitle': "Test Meeting", 'meetingdate': "2020-03-04",
+                                 'meetingtime': "18:00:00", 'location': "Amazon"})
+        self.assertTrue(form.is_valid())
+
+    def test_meetingform_empty(self):
+        form = MeetingForm(data={'meetingtitle': ""})
+        self.assertFalse(form.is_valid())
+
+# ------------------------- New Rsource --------------------
 
 
 class New_Resource_authentication_test(TestCase):
@@ -198,3 +233,25 @@ class New_Resource_authentication_test(TestCase):
         self.assertEqual(str(response.context['user']), 'testuser1')
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'club/newresource.html')
+
+# ------------------------- New Meeting --------------------
+
+
+class New_Meeting_authentication_test(TestCase):
+    def setUp(self):
+        self.test_user = User.objects.create_user(
+            username='testuser1', password='P@ssw0rd1')
+        self.meet = Meeting.objects.create(meetingtitle='Test Meeting', meetingdate='2020-03-04', meetingtime='18:00:00', location='Amazon',
+                                           agenda='This is a test agenda')
+
+    def test_redirect_if_not_logged_in(self):
+        response = self.client.get(reverse('newmeeting'))
+        self.assertRedirects(
+            response, '/accounts/login/?next=/club/newMeeting/')
+
+    def test_Logged_in_uses_correct_template(self):
+        login = self.client.login(username='testuser1', password='P@ssw0rd1')
+        response = self.client.get(reverse('newmeeting'))
+        self.assertEqual(str(response.context['user']), 'testuser1')
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'club/newmeeting.html')
